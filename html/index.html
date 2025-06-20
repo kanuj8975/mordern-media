@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>मॉडर्न मीडिया - Hindi News</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-orange: #ff6600;
+      --header-bg: #111;
+      --content-bg: #fff;
+      --headline-color: #ff6600;
+      --category-bg: #f2f2f2;
+      --category-color: #222;
+      --breaking-bg: #000;
+      --breaking-headline: #e53935;
+      --drawer-bg: #fff;
+      --drawer-link: #222;
+      --drawer-link-hover: #ff6600;
+      --drawer-width: 90vw;
+      --drawer-max: 340px;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background: var(--content-bg);
+      color: #222;
+      overflow-x: hidden; /* Prevent horizontal scroll */
+    }
+    /* Header/Navbar */
+    .header {
+      background: var(--header-bg);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header .left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .header .menu-icon {
+      font-size: 2rem;
+      cursor: pointer;
+      color: #fff;
+      background: none;
+      border: none;
+      margin-right: 0.5rem;
+    }
+    .header .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+      font-family: 'Roboto', sans-serif;
+    }
+    .header .search-icon {
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #fff;
+      background: none;
+      border: none;
+      margin-left: 1rem;
+    }
+    .header .lang-switch {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .header .lang-switch a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 1rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .header .lang-switch a:hover {
+      background: var(--primary-orange);
+      color: #fff;
+    }
+    .header .desktop-lang-switch {
+      display: none;
+    }
+    /* Drawer */
+    .drawer-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 99;
+    }
+    .drawer-backdrop.show {
+      display: block;
+    }
+    .drawer {
+      position: fixed;
+      top: 0; left: 0;
+      width: var(--drawer-width);
+      max-width: var(--drawer-max);
+      height: 100vh;
+      background: var(--drawer-bg);
+      box-shadow: 2px 0 16px #0002;
+      z-index: 1000;
+      transform: translateX(-100%);
+      transition: transform 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer.open {
+      transform: translateX(0);
+    }
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.2rem 0.5rem 1.2rem;
+      border-bottom: 1px solid #eee;
+    }
+    .drawer-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary-orange);
+    }
+    .drawer-close {
+      font-size: 2rem;
+      background: none;
+      border: none;
+      color: #222;
+      cursor: pointer;
+    }
+    .drawer-links {
+      list-style: none;
+      padding: 1.2rem 0 0 0;
+      margin: 0;
+      flex: 1;
+    }
+    .drawer-links li {
+      margin: 0 0 0.5rem 0;
+    }
+    .drawer-links a {
+      display: block;
+      color: var(--drawer-link);
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 500;
+      padding: 0.7rem 2rem;
+      border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .drawer-links a:hover {
+      background: #f7f7f7;
+      color: var(--drawer-link-hover);
+    }
+    .drawer-divider {
+      height: 1px;
+      background: #eee;
+      margin: 1rem 0;
+    }
+    .drawer .lang-switch {
+      padding: 0 2rem 1rem 2rem;
+      border-top: 1px solid #eee;
+      margin-top: auto;
+      display: flex;
+      gap: 1rem;
+    }
+    /* News Cards */
+    .news-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    @media (min-width: 900px) {
+      .news-list {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 1800px;
+        padding: 3rem 5vw;
+        gap: 2.5rem;
+        margin: 0 auto;
+      }
+      .news-card {
+        min-height: 420px;
+        box-shadow: 0 4px 24px #0002;
+      }
+      .news-card img {
+        height: 220px;
+      }
+      .news-card-content {
+        padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+      }
+      .news-card-title {
+        font-size: 1.35rem;
+      }
+      .news-card-summary {
+        font-size: 1.1rem;
+      }
+    }
+    @media (min-width: 1200px) {
+      .news-list {
+        grid-template-columns: repeat(5, 1fr);
+        max-width: 2200px;
+        padding: 3.5rem 8vw;
+        gap: 2.8rem;
+      }
+      .news-card img {
+        height: 260px;
+      }
+      .news-card {
+        min-height: 480px;
+      }
+    }
+    @media (min-width: 1600px) {
+      .news-list {
+        grid-template-columns: repeat(6, 1fr);
+        max-width: 2600px;
+        padding: 4rem 12vw;
+        gap: 3rem;
+      }
+      .news-card img {
+        height: 300px;
+      }
+      .news-card {
+        min-height: 520px;
+      }
+    }
+    .news-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px #0001;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s;
+    }
+    .news-card:hover {
+      box-shadow: 0 4px 16px #0002;
+    }
+    .news-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: #eee;
+    }
+    .news-card-content {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .news-card-title {
+      color: var(--headline-color);
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin: 0 0 0.3rem 0;
+      line-height: 1.3;
+    }
+    .news-card-summary {
+      color: #444;
+      font-size: 1rem;
+      margin: 0 0 0.5rem 0;
+    }
+    .news-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.95rem;
+      color: #888;
+      margin-top: 0.5rem;
+    }
+    .news-card-category {
+      background: var(--category-bg);
+      color: var(--category-color);
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: auto;
+    }
+    /* Search Bar Overlay */
+    .search-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .search-overlay.show {
+      display: flex;
+    }
+    .search-box {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      box-shadow: 0 2px 16px #0003;
+    }
+    .search-box input {
+      font-size: 1.1rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      outline: none;
+      min-width: 180px;
+    }
+    .search-box button {
+      background: var(--primary-orange);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .search-box button:hover {
+      background: #e65100;
+    }
+    /* Footer */
+    .footer {
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 1.2rem 0 1.5rem 0;
+      font-size: 1rem;
+      margin-top: 2rem;
+    }
+    .footer .lang-switch a {
+      color: #fff;
+      margin: 0 0.5rem;
+      text-decoration: underline;
+      font-size: 1rem;
+    }
+    .footer .lang-switch a:hover {
+      color: var(--primary-orange);
+    }
+    /* Desktop Carousel - Touch/Drag Scrollable, Side by Side */
+    .desktop-carousel {
+      display: none;
+      width: calc(100vw - 40px);
+      max-width: 1600px;
+      height: 1.3in;
+      min-height: 90px;
+      max-height: 160px;
+      margin: 1.5rem auto 0 auto;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px #0002;
+      background: #eee;
+    }
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .carousel-track::-webkit-scrollbar {
+      display: none;
+      height: 0 !important;
+    }
+    .carousel-img {
+      flex: 0 0 100%;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      scroll-snap-align: start;
+      user-select: none;
+      pointer-events: auto;
+      opacity: 1;
+      position: relative;
+      transition: none;
+      z-index: 1;
+    }
+    /* Responsive */
+    @media (min-width: 600px) {
+      .news-list {
+        grid-template-columns: 1fr 1fr;
+      }
+      .drawer {
+        width: 340px;
+        max-width: 340px;
+      }
+    }
+    @media (min-width: 900px) {
+      .news-list {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      .header .desktop-lang-switch {
+        display: flex;
+      }
+      .drawer-lang-switch {
+        display: none !important;
+      }
+      .desktop-carousel {
+        display: block;
+      }
+      .carousel-track {
+        display: flex;
+      }
+    }
+    @media (max-width: 899px) {
+      .desktop-carousel {
+        display: none;
+      }
+    }
+    .lang-switch a {
+      display: flex;
+      align-items: center;
+      gap: 0.3em;
+    }
+    .lang-switch a i {
+      font-size: 1.1em;
+    }
+    .drawer-lang-switch {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5em;
+      margin-top: 0.5em;
+    }
+    .drawer-lang-switch a {
+      padding: 0.5em 0 0.5em 0;
+      font-size: 1.05em;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header/Navbar -->
+  <header class="header">
+    <div class="left">
+      <button class="menu-icon" id="menuBtn" aria-label="मेनू"><i class="fas fa-bars"></i></button>
+      <span class="logo">मॉडर्न मीडिया</span>
+    </div>
+    <div class="lang-switch desktop-lang-switch">
+      <a href="#" class="active"><i class="fas fa-language"></i> हिन्दी</a>
+      <a href="#"><i class="fas fa-globe"></i> In English</a>
+      <a href="#"><i class="fas fa-language"></i> ગુજરાતી</a>
+    </div>
+    <button class="search-icon" id="searchBtn" aria-label="खोज"><i class="fas fa-search"></i></button>
+  </header>
+  <!-- Desktop Only: Image Carousel -->
+  <div class="desktop-carousel" id="desktopCarousel">
+    <div class="carousel-track" id="carouselTrack">
+      <img src="https://placehold.co/1600x140/ff6600/fff?text=Carousel+1" alt="Carousel 1" class="carousel-img">
+      <img src="https://placehold.co/1600x140/222/fff?text=Carousel+2" alt="Carousel 2" class="carousel-img">
+      <img src="https://placehold.co/1600x140/ff6600/fff?text=Carousel+3" alt="Carousel 3" class="carousel-img">
+    </div>
+  </div>
+  <!-- Drawer -->
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <nav class="drawer" id="drawerNav" aria-label="साइड नेविगेशन">
+    <div class="drawer-header">
+      <span class="drawer-title">मेनू</span>
+      <button class="drawer-close" id="drawerClose" aria-label="बंद करें"><i class="fas fa-times"></i></button>
+    </div>
+    <ul class="drawer-links">
+      <li><a href="#">रिपोर्ट</a></li>
+      <li><a href="#">राजनीति</a></li>
+      <li><a href="#">विचार</a></li>
+      <li><a href="#">देश-समाज</a></li>
+      <li><a href="#">फ़ैक्ट-चेक</a></li>
+      <li><a href="#">विविध विषय</a></li>
+      <li><a href="#">और भी...</a></li>
+      <li><a href="#">सहयोग करें</a></li>
+    </ul>
+    <div class="drawer-divider"></div>
+    <div class="lang-switch drawer-lang-switch">
+      <a href="#" class="active"><i class="fas fa-language"></i> हिन्दी</a>
+      <a href="#"><i class="fas fa-globe"></i> In English</a>
+      <a href="#"><i class="fas fa-language"></i> ગુજરાતી</a>
+    </div>
+  </nav>
+  <!-- Search Overlay -->
+  <div class="search-overlay" id="searchOverlay">
+    <form class="search-box" id="searchForm" onsubmit="return false;">
+      <input type="text" id="searchInput" placeholder="खोजें...">
+      <button type="submit"><i class="fas fa-search"></i> खोजें</button>
+    </form>
+  </div>
+  <!-- News Cards -->
+  <main>
+    <section class="news-list" id="newsList">
+      <!-- News cards will be injected here by JS -->
+    </section>
+  </main>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="lang-switch">
+      <a href="#">हिन्दी</a> |
+      <a href="#">In English</a> |
+      <a href="#">ગુજરાતીમાં</a>
+    </div>
+    <div style="margin-top:0.5rem;">&copy; 2025 मॉडर्न मीडिया | संपर्क: info@modernmedia.com</div>
+  </footer>
+  <script>
+    // Drawer logic
+    const menuBtn = document.getElementById('menuBtn');
+    const drawer = document.getElementById('drawerNav');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const drawerClose = document.getElementById('drawerClose');
+    function openDrawer() {
+      drawer.classList.add('open');
+      drawerBackdrop.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      drawerBackdrop.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    menuBtn.addEventListener('click', openDrawer);
+    drawerClose.addEventListener('click', closeDrawer);
+    drawerBackdrop.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', (e) => {
+      if (drawer.classList.contains('open') && e.key === 'Escape') closeDrawer();
+    });
+    // Search overlay logic
+    const searchBtn = document.getElementById('searchBtn');
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    searchBtn.addEventListener('click', () => {
+      searchOverlay.classList.add('show');
+      searchInput.focus();
+    });
+    searchOverlay.addEventListener('click', (e) => {
+      if (e.target === searchOverlay) searchOverlay.classList.remove('show');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (searchOverlay.classList.contains('show') && e.key === 'Escape') searchOverlay.classList.remove('show');
+    });
+    // Dummy news data
+    const newsData = [
+      {
+        img: 'https://placehold.co/400x200/ff6600/fff?text=Image+1',
+        title: 'राजनीति में नया मोड़, विपक्ष ने किया विरोध',
+        summary: 'राजनीति में आज एक नया मोड़ आया जब विपक्ष ने सरकार की नई नीति का विरोध किया...',
+        author: 'राहुल शर्मा',
+        date: '21 जून 2025',
+        category: 'राजनीति'
+      },
+      {
+        img: 'https://placehold.co/400x200/222/fff?text=Image+2',
+        title: 'देश-समाज: शिक्षा में बदलाव',
+        summary: 'शिक्षा नीति में बदलाव से छात्रों को मिलेगा लाभ, विशेषज्ञों की राय...',
+        author: 'सुमन गुप्ता',
+        date: '20 जून 2025',
+        category: 'देश-समाज'
+      },
+      {
+        img: 'https://placehold.co/400x200/ff6600/fff?text=Image+3',
+        title: 'फ़ैक्ट-चेक: वायरल खबर की सच्चाई',
+        summary: 'सोशल मीडिया पर वायरल हो रही खबर की पड़ताल, जानिए क्या है सच्चाई...',
+        author: 'अमित वर्मा',
+        date: '19 जून 2025',
+        category: 'फ़ैक्ट-चेक'
+      },
+      {
+        img: 'https://placehold.co/400x200/222/fff?text=Image+4',
+        title: 'विचार: युवाओं की भूमिका',
+        summary: 'देश के विकास में युवाओं की भूमिका पर चर्चा, विशेषज्ञों की राय...',
+        author: 'नेहा सिंह',
+        date: '18 जून 2025',
+        category: 'विचार'
+      },
+      {
+        img: 'https://placehold.co/400x200/ff6600/fff?text=Image+5',
+        title: 'रिपोर्ट: ग्रामीण भारत की तस्वीर',
+        summary: 'ग्रामीण भारत में विकास की रफ्तार, जमीनी हकीकत की रिपोर्ट...',
+        author: 'अजय मिश्रा',
+        date: '17 जून 2025',
+        category: 'रिपोर्ट'
+      },
+      {
+        img: 'https://placehold.co/400x200/222/fff?text=Image+6',
+        title: 'विविध विषय: तकनीक की दुनिया',
+        summary: 'तकनीक के क्षेत्र में हो रहे नए आविष्कार, जानिए क्या है नया...',
+        author: 'कविता जोशी',
+        date: '16 जून 2025',
+        category: 'विविध विषय'
+      }
+    ];
+    // Render news cards
+    function renderNewsList(list) {
+      const newsList = document.getElementById('newsList');
+      newsList.innerHTML = '';
+      list.forEach(news => {
+        const card = document.createElement('div');
+        card.className = 'news-card';
+        card.innerHTML = `
+          <img src="${news.img}" alt="${news.title}">
+          <div class="news-card-content">
+            <div class="news-card-title">${news.title}</div>
+            <div class="news-card-summary">${news.summary}</div>
+            <div class="news-card-meta">
+              <span>${news.author}</span> |
+              <span>${news.date}</span>
+              <span class="news-card-category">${news.category}</span>
+            </div>
+          </div>
+        `;
+        newsList.appendChild(card);
+      });
+    }
+    renderNewsList(newsData);
+    // Search filter
+    searchForm.addEventListener('submit', function() {
+      const q = searchInput.value.trim();
+      if (!q) {
+        renderNewsList(newsData);
+        searchOverlay.classList.remove('show');
+        return;
+      }
+      const filtered = newsData.filter(n =>
+        n.title.includes(q) || n.summary.includes(q) || n.category.includes(q)
+      );
+      renderNewsList(filtered);
+      searchOverlay.classList.remove('show');
+    });
+    // Desktop carousel logic (touch/drag scrollable)
+    const carouselTrack = document.getElementById('carouselTrack');
+    const carouselImgs = carouselTrack.querySelectorAll('.carousel-img');
+    let carouselIdx = 0;
+    function scrollToCarouselImg(idx) {
+      const img = carouselImgs[idx];
+      if (img) img.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+    }
+    if (carouselImgs.length > 0) {
+      setInterval(() => {
+        carouselIdx = (carouselIdx + 1) % carouselImgs.length;
+        scrollToCarouselImg(carouselIdx);
+      }, 4000);
+    }
+    // Secret dashboard trigger on search icon (7 fast clicks)
+    let searchClickCount = 0;
+    let searchClickTimer = null;
+    searchBtn.addEventListener('click', function secretDashboardTrigger(e) {
+      searchClickCount++;
+      if (searchClickCount === 7) {
+        searchClickCount = 0;
+        window.open('admin.html', '_blank'); // Change to your dashboard URL
+        return;
+      }
+      clearTimeout(searchClickTimer);
+      searchClickTimer = setTimeout(() => { searchClickCount = 0; }, 2000); // 2s window
+    });
+  </script>
+</body>
+</html>

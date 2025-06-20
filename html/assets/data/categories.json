@@ -1,0 +1,6 @@
+[
+  {"id": "sports", "name": "Sports"},
+  {"id": "tech", "name": "Tech"},
+  {"id": "business", "name": "Business"},
+  {"id": "politics", "name": "Politics"}
+]

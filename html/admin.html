@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NewsCentral Admin Panel</title>
+  <link rel="stylesheet" href="assets/css/admin.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { background: #E0E0E0; font-family: 'Roboto', sans-serif; }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin: 2rem 0 2rem 0;
+    }
+    .metric-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #0001;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+    }
+    .metric-card .icon {
+      font-size: 2.2rem;
+      margin-bottom: 0.7rem;
+    }
+    .metric-card.orange .icon { color: #FF9800; }
+    .metric-card.blue .icon { color: #2196F3; }
+    .metric-card.green .icon { color: #43A047; }
+    .metric-card.gray .icon { color: #888; }
+    .metric-value {
+      font-size: 2.1rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+    .metric-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+    .metric-subtext {
+      font-size: 0.95rem;
+      color: #888;
+      text-align: center;
+    }
+    .dashboard-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+    .chart-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #0001;
+      padding: 1.5rem 1rem 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .chart-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #2196F3;
+    }
+    .recent-posts {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px #0001;
+      padding: 1.5rem 1.5rem 2rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .recent-posts h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #FF9800;
+      margin-bottom: 1rem;
+    }
+    #recent-posts-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    #recent-posts-list li {
+      padding: 0.7rem 0;
+      border-bottom: 1px solid #eee;
+      font-size: 1.05rem;
+      color: #333;
+    }
+    #recent-posts-list li:last-child { border-bottom: none; }
+    @media (max-width: 1100px) {
+      .dashboard-grid { grid-template-columns: 1fr 1fr; }
+      .dashboard-charts { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .dashboard-charts { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <aside class="admin-sidebar">
+      <h2>Admin Panel</h2>
+      <nav>
+        <ul>
+          <li><a href="#dashboard" class="active">Dashboard</a></li>
+          <li><a href="#articles">Articles</a></li>
+          <li><a href="#categories">Categories</a></li>
+          <li><a href="#languages">Languages</a></li>
+          <li><a href="#users">Users</a></li>
+          <li><a href="#analytics">Analytics</a></li>
+        </ul>
+      </nav>
+    </aside>
+    <main class="admin-main" id="admin-main">
+      <section class="dashboard-grid">
+        <div class="metric-card orange">
+          <div class="icon"><i class="fas fa-book"></i></div>
+          <div class="metric-value" id="total-articles">0</div>
+          <div class="metric-label">Total Articles</div>
+          <div class="metric-subtext">Number of published articles</div>
+        </div>
+        <div class="metric-card blue">
+          <div class="icon"><i class="fas fa-folder"></i></div>
+          <div class="metric-value" id="total-categories">0</div>
+          <div class="metric-label">Categories</div>
+          <div class="metric-subtext">Number of news categories</div>
+        </div>
+        <div class="metric-card green">
+          <div class="icon"><i class="fas fa-globe"></i></div>
+          <div class="metric-value" id="total-languages">0</div>
+          <div class="metric-label">Languages</div>
+          <div class="metric-subtext">Number of supported languages</div>
+        </div>
+        <div class="metric-card gray">
+          <div class="icon"><i class="fas fa-users"></i></div>
+          <div class="metric-value" id="total-users">0</div>
+          <div class="metric-label">Registered Users</div>
+          <div class="metric-subtext">Total registered users (dummy)</div>
+        </div>
+      </section>
+      <section class="dashboard-charts">
+        <div class="chart-card">
+          <h3>Articles by Language</h3>
+          <canvas id="langBarChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Articles by Category</h3>
+          <canvas id="catPieChart"></canvas>
+        </div>
+      </section>
+      <section class="recent-posts">
+        <h3>Recent Posts</h3>
+        <ul id="recent-posts-list"></ul>
+      </section>
+    </main>
+  </div>
+  <script src="assets/js/data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>

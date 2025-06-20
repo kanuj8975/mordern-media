@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "Tech Revolution 2025",
+    "summary": "How AI is changing the world.",
+    "content": "<p>AI is transforming industries...</p>",
+    "image": "assets/images/tech.jpg",
+    "author": "Jane Doe",
+    "date": "2025-06-20",
+    "category": "tech",
+    "language": "en",
+    "tags": ["AI", "Technology"]
+  },
+  {
+    "id": 2,
+    "title": "Sports Highlights",
+    "summary": "Top moments in sports this week.",
+    "content": "<p>Exciting matches and results...</p>",
+    "image": "assets/images/sports.jpg",
+    "author": "John Smith",
+    "date": "2025-06-19",
+    "category": "sports",
+    "language": "en",
+    "tags": ["Sports"]
+  }
+]
