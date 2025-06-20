@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Global Gazette</title>
+  <style>
+    /* CSS Styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9fafb;
+      color: #111827;
+    }
+
+    header {
+      background-color: #1f2937;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+    }
+
+    .lang-buttons button {
+      margin-left: 10px;
+      background-color: #374151;
+      color: white;
+      border: none;
+      padding: 0.4rem 0.6rem;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: auto;
+      padding: 2rem;
+    }
+
+    footer {
+      background-color: #1f2937;
+      color: #9ca3af;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .search-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+
+    .search-form input,
+    .search-form select {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .card {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
+    }
+
+    .trending {
+      margin-bottom: 2rem;
+    }
+
+    .loading {
+      font-size: 1.2rem;
+      color: #6b7280;
+      text-align: center;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="module">
+    // Mock Data
+    const supportedLanguages = [
+      { code: "en", label: "English" },
+      { code: "hi", label: "हिन्दी" },
+      { code: "gu", label: "ગુજરાતી" },
+    ];
+
+    let articles = [
+      {
+        id: "1",
+        title: { en: "Breaking News", hi: "ताज़ा खबर", gu: "બ્રેકિંગ ન્યૂઝ" },
+        content: { en: "This is breaking news.", hi: "यह ताज़ा खबर है।", gu: "આ બ્રેકિંગ ન્યૂઝ છે." },
+        category: "Politics",
+        tags: ["news", "politics"],
+        trending: true,
+        breaking: false,
+      },
+      {
+        id: "2",
+        title: { en: "Sports Update", hi: "खेल समाचार", gu: "સ્પોર્ટ્સ ન્યૂઝ" },
+        content: { en: "Cricket match live now.", hi: "क्रिकेट मैच अभी चल रहा है।", gu: "ક્રિકેટ મેચ હવે લાઇવ છે." },
+        category: "Sports",
+        tags: ["sports", "cricket"],
+        trending: false,
+        breaking: true,
+      },
+      {
+        id: "3",
+        title: { en: "Tech Innovation", hi: "टेक नवाचार", gu: "ટેક ઇનોવેશન" },
+        content: { en: "New AI tools are changing the world.", hi: "नई AI टूल दुनिया बदल रहे हैं।", gu: "નવા AI ટૂલ વિશ્વને બદલી રહ્યા છે." },
+        category: "Technology",
+        tags: ["tech", "ai", "innovation"],
+        trending: true,
+        breaking: false,
+      }
+    ];
+
+    let selectedArticleId = null;
+    let currentLanguage = 'en';
+    let searchTerm = '';
+    let selectedCategoryFilter = 'All';
+
+    const allSiteCategories = ['All', ...[...new Set(articles.map(a => a.category))]];
+    const root = document.getElementById("root");
+
+    function renderHeader() {
+      const header = document.createElement('header');
+      header.innerHTML = `
+        <h1>Global Gazette</h1>
+        <div class="lang-buttons">
+          ${supportedLanguages.map(lang => 
+            `<button onclick="handleLanguageChange('${lang.code}')">${lang.label}</button>`
+          ).join('')}
+        </div>
+        <form class="search-form" onsubmit="handleSearch(event)">
+          <input type="text" placeholder="Search..." value="${searchTerm}" onchange="e => searchTerm = e.target.value" />
+          <select onchange="e => selectedCategoryFilter = e.target.value">
+            ${allSiteCategories.map(cat => 
+              `<option value="${cat}" ${selectedCategoryFilter === cat ? 'selected' : ''}>${cat}</option>`
+            ).join('')}
+          </select>
+          <button type="submit">Search</button>
+        </form>
+      `;
+      return header;
+    }
+
+    function handleLanguageChange(code) {
+      currentLanguage = code;
+      renderApp();
+    }
+
+    function handleSearch(e) {
+      e.preventDefault();
+      selectedArticleId = null;
+      renderApp();
+    }
+
+    function handleSelectArticle(id) {
+      selectedArticleId = id;
+      window.history.pushState({}, '', '/?article=' + id);
+      renderApp();
+    }
+
+    function handleCloseArticleDisplay() {
+      selectedArticleId = null;
+      window.history.pushState({}, '', '/');
+      renderApp();
+    }
+
+    function renderArticleList() {
+      let filtered = [...articles];
+
+      if (searchTerm) {
+        filtered = filtered.filter(article =>
+          article.title[currentLanguage].toLowerCase().includes(searchTerm.toLowerCase()) ||
+          article.content[currentLanguage].toLowerCase().includes(searchTerm.toLowerCase()) ||
+          article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+      }
+
+      if (selectedCategoryFilter !== 'All') {
+        filtered = filtered.filter(a => a.category === selectedCategoryFilter);
+      }
+
+      if (filtered.length === 0) {
+        const div = document.createElement('div');
+        div.textContent = 'No Articles Found';
+        div.className = 'loading';
+        return div;
+      }
+
+      const list = document.createElement('div');
+
+      filtered.forEach(article => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${article.title[currentLanguage]}</h3>
+          <p>${article.content[currentLanguage]}</p>
+          <button onclick="handleSelectArticle('${article.id}')">Read More</button>
+        `;
+        list.appendChild(card);
+      });
+
+      return list;
+    }
+
+    function renderSelectedArticle() {
+      const article = articles.find(a => a.id === selectedArticleId);
+      if (!article) return document.createElement('div');
+
+      const container = document.createElement('div');
+      container.innerHTML = `
+        <h2>${article.title[currentLanguage]}</h2>
+        <p>${article.content[currentLanguage]}</p>
+        <button onclick="handleCloseArticleDisplay()">Close</button>
+      `;
+      return container;
+    }
+
+    function renderTrendingNews() {
+      const trending = articles.filter(a => a.trending || a.breaking).slice(0, 3);
+      if (trending.length === 0) return '';
+
+      const container = document.createElement('section');
+      container.className = 'trending';
+      container.innerHTML = '<h2>Trending News</h2>';
+
+      trending.forEach(article => {
+        const card = document.createElement('div');
+        card.innerHTML = `<h4>${article.title[currentLanguage]}</h4><button onclick="handleSelectArticle('${article.id}')">Read</button>`;
+        container.appendChild(card);
+      });
+      return container;
+    }
+
+    function renderApp() {
+      root.innerHTML = '';
+      const header = renderHeader();
+      root.appendChild(header);
+
+      const main = document.createElement('main');
+
+      if (selectedArticleId) {
+        main.appendChild(renderSelectedArticle());
+      } else {
+        main.appendChild(renderTrendingNews());
+        main.appendChild(renderArticleList());
+      }
+
+      root.appendChild(main);
+
+      const footer = document.createElement('footer');
+      footer.textContent = `© ${new Date().getFullYear()} Global Gazette. All rights reserved.`;
+      root.appendChild(footer);
+    }
+
+    // Handle URL changes for article view
+    window.addEventListener('popstate', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      selectedArticleId = urlParams.get('article');
+      renderApp();
+    });
+
+    // Initial Render
+    renderApp();
+  </script>
+
+</body>
+</html>
